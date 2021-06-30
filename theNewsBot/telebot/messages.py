@@ -1,11 +1,9 @@
-from enum import Enum
-
-START_MESSAGE = "Hello!! I'm SAMA4, your personal news assistant.\nI hope you are having a great day but let's make it even better.\n/lets_go\n/let_it_be"
-LET_IT_BE = "Seriously!!\nThen why waste my time, 'bot' kaam hai ;)"
-LETS_GO = "Let's begin then, please select from one of the following categories."
-
-class State(Enum):
-    START = 0
-    STOP = -1
-    LEVEL1 = 1
-    LEVEL2 = 2
+START_MESSAGE = "Hello!! I am theNewsBot and I'm here to quench your thirst for daily news.\n\n/quenchIt\n/noThanks"
+NO_THANKS = "Seriously!!\nWhy waste my time, 'bot' kaam hai ;)"
+QUENCH_IT = "Let's begin. Please select from one of the following categories.\n\n"
+STOP_MESSAGE = "Thanks for your time. Have a great day"
+BACK_CATEGORY = "\n/back\n/category"
+NEXT_CATEGORY = "\n/next\n/category"
+BACK_NEXT_CATEGORY = "\n/back\n/next\n/category"
+CATEGORY = "\n/category"
+THATS_IT = "That's It. You've had too much for a day. Time to take a break"

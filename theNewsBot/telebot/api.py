@@ -12,9 +12,8 @@ def start(update, context):
     )
     return "start"
 
-def lets_go(update, context):
-    message = LETS_GO
-    message += "\n\n"
+def begin(update, context):
+    message = QUENCH_IT
     keys = helpers.get_data("news")
     for command in keys:
         message += "/{}\n".format(command)
@@ -24,8 +23,8 @@ def lets_go(update, context):
     )
     return "news"
 
-def let_it_be(update, context):
-    message = LET_IT_BE
+def noBegin(update, context):
+    message = NO_THANKS
     context.bot.send_message(
         chat_id = update.effective_chat.id,
         text = message
@@ -42,7 +41,7 @@ def get_data(update, context):
         return_value = input_message.strip("/")
         for command in keys:
             message += "/{}\n".format(command)
-        message += "\n/category\n"
+        message += CATEGORY
         context.bot.send_message(
             chat_id = update.effective_chat.id,
             text = message
@@ -51,7 +50,7 @@ def get_data(update, context):
         list_of_articles = keys
         for entry in keys[:10]:
             message += "[{}]({})\n\n".format(entry["title"], entry["link"])
-        message += "\n/next\n/category"
+        message += NEXT_CATEGORY
         context.bot.send_message(
             chat_id = update.effective_chat.id,
             text = message,
@@ -67,14 +66,14 @@ def get_previous_next(update, context):
     if command == "/next":
         current_news_index += 10
         if current_news_index >= len(list_of_articles):
-            message += "You've reached the end of the news feed.\n"
-            message += "/back\n/category\n"
+            message += THATS_IT
+            message += BACK_CATEGORY
         else:
             start_index = current_news_index
             stop_index = current_news_index + 10 
             for article in list_of_articles[start_index:stop_index]:
                 message += "[{}]({})\n\n".format(article['title'], article['link'])
-            message += "/next\n/back\n/category\n"
+            message += BACK_NEXT_CATEGORY
     if command == "/back":
         current_news_index -= 10
         if current_news_index < 10:
@@ -82,13 +81,13 @@ def get_previous_next(update, context):
             stop_index = 10
             for article in list_of_articles[start_index:stop_index]:
                 message += "[{}]({})\n\n".format(article['title'], article['link']) 
-            message += "/next\n/category\n"
+            message += NEXT_CATEGORY
         else:
             start_index = current_news_index
             stop_index = current_news_index + 10
             for article in list_of_articles[start_index:stop_index]:
                 message += "[{}]({})\n\n".format(article['title'], article['link'])        
-            message += "/next\n/back\n/category\n"
+            message += BACK_NEXT_CATEGORY
 
     context.bot.send_message(
         chat_id = update.effective_chat.id,
@@ -99,7 +98,7 @@ def get_previous_next(update, context):
     return "previous_next"
 
 def stop(update, context):
-    message = "Thanks for your time. Have a great day"
+    message = STOP_MESSAGE
     context.bot.send_message(
         chat_id = update.effective_chat.id,
         text = message

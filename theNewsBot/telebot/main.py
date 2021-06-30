@@ -1,6 +1,5 @@
 import api
 from telegram import Bot
-from messages import State
 from credentials import TOKEN
 from telegram.ext import CommandHandler, ConversationHandler, Updater
 from theHindu.helpers import get_all_keys
@@ -21,7 +20,7 @@ for key, val in get_all_keys().items():
         states[key].append(
             CommandHandler(
                 command="category",
-                callback=api.lets_go
+                callback=api.begin
             )
         )
     else:
@@ -36,15 +35,15 @@ for key, val in get_all_keys().items():
             )
         ]
 
-start_end = {
+commands = {
     "start": [
         CommandHandler(
-            command="lets_go",
-            callback=api.lets_go
+            command="quenchIt",
+            callback=api.begin
         ),
         CommandHandler(
-            command="let_it_be",
-            callback=api.let_it_be
+            command="noThanks",
+            callback=api.noBegin
         )
     ],
     "stop": [
@@ -64,7 +63,7 @@ start_end = {
             ),
         CommandHandler(
             command="category",
-            callback=api.lets_go
+            callback=api.begin
             )
         ]
     }
@@ -76,7 +75,7 @@ conversation_handler = ConversationHandler(
             callback=api.start
         )
     ],
-    states={**states, **start_end},
+    states={**states, **commands},
     fallbacks=[
         CommandHandler(
             command="stop",
