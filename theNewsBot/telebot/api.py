@@ -38,6 +38,7 @@ def get_data(update, context):
     input_message = update.message.text
     keys = helpers.get_data(input_message.strip("/"))
     if isinstance(keys[0], str):
+        message = SUBCATEGORIES_BEGIN
         return_value = input_message.strip("/")
         for command in keys:
             message += "/{}\n".format(command)
@@ -47,9 +48,11 @@ def get_data(update, context):
             text = message
         )
     elif isinstance(keys[0], dict):
+        count = 1
         list_of_articles = keys
         for entry in keys[:10]:
-            message += "[{}]({})\n\n".format(entry["title"], entry["link"])
+            message += "[{}. {}]({})\n\n".format(count, entry["title"], entry["link"])
+            count += 1
         message += NEXT_CATEGORY
         context.bot.send_message(
             chat_id = update.effective_chat.id,
@@ -71,22 +74,28 @@ def get_previous_next(update, context):
         else:
             start_index = current_news_index
             stop_index = current_news_index + 10 
+            count = start_index + 1
             for article in list_of_articles[start_index:stop_index]:
-                message += "[{}]({})\n\n".format(article['title'], article['link'])
+                message += "[{}. {}]({})\n\n".format(count, article['title'], article['link'])
+                count += 1
             message += NEXT_BACK_CATEGORY
     if command == "/back":
         current_news_index -= 10
         if current_news_index < 10:
             start_index = 0
             stop_index = 10
+            count = 1
             for article in list_of_articles[start_index:stop_index]:
-                message += "[{}]({})\n\n".format(article['title'], article['link']) 
+                message += "[{}. {}]({})\n\n".format(count, article['title'], article['link']) 
+                count += 1
             message += NEXT_CATEGORY
         else:
             start_index = current_news_index
             stop_index = current_news_index + 10
+            count = start_index
             for article in list_of_articles[start_index:stop_index]:
-                message += "[{}]({})\n\n".format(article['title'], article['link'])        
+                message += "[{}. {}]({})\n\n".format(article['title'], article['link'])  
+                count += 1      
             message += NEXT_BACK_CATEGORY
 
     context.bot.send_message(
