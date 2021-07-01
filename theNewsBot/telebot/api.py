@@ -73,7 +73,7 @@ def get_previous_next(update, context):
             stop_index = current_news_index + 10 
             for article in list_of_articles[start_index:stop_index]:
                 message += "[{}]({})\n\n".format(article['title'], article['link'])
-            message += BACK_NEXT_CATEGORY
+            message += NEXT_BACK_CATEGORY
     if command == "/back":
         current_news_index -= 10
         if current_news_index < 10:
@@ -87,7 +87,7 @@ def get_previous_next(update, context):
             stop_index = current_news_index + 10
             for article in list_of_articles[start_index:stop_index]:
                 message += "[{}]({})\n\n".format(article['title'], article['link'])        
-            message += BACK_NEXT_CATEGORY
+            message += NEXT_BACK_CATEGORY
 
     context.bot.send_message(
         chat_id = update.effective_chat.id,

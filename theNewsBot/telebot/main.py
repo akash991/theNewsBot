@@ -38,11 +38,11 @@ for key, val in get_all_keys().items():
 commands = {
     "start": [
         CommandHandler(
-            command="quenchIt",
+            command="yes",
             callback=api.begin
         ),
         CommandHandler(
-            command="noThanks",
+            command="no",
             callback=api.noBegin
         )
     ],

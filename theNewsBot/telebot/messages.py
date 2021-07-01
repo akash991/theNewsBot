@@ -1,9 +1,11 @@
-START_MESSAGE = "Hello!! I am theNewsBot and I'm here to quench your thirst for daily news.\n\n/quenchIt\n/noThanks"
-NO_THANKS = "Seriously!!\nWhy waste my time, 'bot' kaam hai ;)"
+START_MESSAGE = "Hello!! I'm theNewsBot, your one-stop source for daily news.\n\nMy creator is not much of a talker and unfortunately, so am I. My suggestion would be, you press on 'yes' and I'll show you what all I've got. As for the other option, let's keep that aside for now.\n\n/yes\n/no"
+NO_THANKS = "Seriously!! I told you to keep that aside for now.\nAnyways, I've got a 'bot' of work to finish, there are others waiting for me.\nPress on /start and I'll see what can be done for you."
 QUENCH_IT = "Let's begin. Please select from one of the following categories.\n\n"
 STOP_MESSAGE = "Thanks for your time. Have a great day"
-BACK_CATEGORY = "\n/back\n/category"
-NEXT_CATEGORY = "\n/next\n/category"
-BACK_NEXT_CATEGORY = "\n/back\n/next\n/category"
-CATEGORY = "\n/category"
+NEXT = "\n/next to navigate to the next set"
+BACK = "\n/back to go back to the last set"
+CATEGORY = "\n/category to go to the list of different categories"
+BACK_CATEGORY = BACK + CATEGORY
+NEXT_CATEGORY = NEXT + CATEGORY
+NEXT_BACK_CATEGORY = NEXT + BACK + CATEGORY
 THATS_IT = "That's It. You've had too much for a day. Time to take a break"
