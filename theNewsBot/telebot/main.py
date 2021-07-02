@@ -1,8 +1,7 @@
+import os
 import api
-import logging
 from telegram import Bot
 from rssfeeds import theHindu
-from credentials import TOKEN
 from telegram.ext import Updater, CommandHandler, ConversationHandler
 
 def generate_conversation_handler_states():
@@ -69,8 +68,9 @@ conversation_handler = ConversationHandler(
     allow_reentry=True
 )
 
-bot = Bot(token=TOKEN)
-updater = Updater(token=TOKEN)
+token = os.getenv("TOKEN")
+bot = Bot(token=token)
+updater = Updater(token=token)
 dispatcher = updater.dispatcher
 
 # Add conversation handler to the dispatcher
