@@ -1,73 +1,56 @@
+import os
 import api
 from telegram import Bot
-from credentials import TOKEN
-from telegram.ext import CommandHandler, ConversationHandler, Updater
-from theHindu.helpers import get_all_keys
+from rssfeeds import theHindu
+from telegram.ext import Updater, CommandHandler, ConversationHandler
 
-bot = Bot(token=TOKEN)
-updater = Updater(token=TOKEN)
-dispatcher = updater.dispatcher
+def generate_conversation_handler_states():
+    """
+    Function to create different states in the ConversationHandler
 
-states = {}
-for key, val in get_all_keys().items():
-    states[key] = []
-    if len(val) > 1:
-        for entry in val:
-            states[key].append(CommandHandler(
-                command=entry,
-                callback=api.get_data
-            ))
-        states[key].append(
-            CommandHandler(
-                command="category",
-                callback=api.begin
-            )
-        )
-    else:
-        states[key] = [
-            CommandHandler(
-                command="next",
-                callback=api.get_previous_next
-            ),
-            CommandHandler(
-                command="back",
-                callback=api.get_previous_next
-            )
+    Parameters:
+        None
+    
+    Return:
+        dict: representing the handler states
+    """
+    handler_states = {}
+    rss_feeds = theHindu.get_all_keys()
+    for k, v in rss_feeds.items():
+        handler_states[k] = []
+        if isinstance(v, list):
+            # If there are suboptions available for the given feed.
+            # Create a CommandHandler for each option.
+            for entry in v:
+                handler_states[k].append(CommandHandler(command=entry, callback=api.get_data))
+        if isinstance(v, str):
+            # If there are no suboption and only contains the url to the rssfeed
+            # Add CommandHandler to navigate between different articles in a given category
+            handler_states[k] = [
+                CommandHandler(command="next", callback=api.get_next),
+                CommandHandler(command="back", callback=api.get_back)
+            ]
+        # Add category CommandHandler, this will help to navigate back to the list of categories
+        handler_states[k].append(CommandHandler(command="category",callback=api.begin))
+
+    # CommandHandler to recognize the start of conversation
+    handler_states["start"] = [CommandHandler(command="yes", callback=api.begin)]
+    # CommandHandler to stop the conversation
+    handler_states["stop"] = [CommandHandler(command="stop", callback=api.stop)]
+
+    # CommandHandler to navigate forward/backward while going through the articles.
+    for state in ["next", "back"]:
+        handler_states[state] = [
+            CommandHandler(command="next", callback=api.get_next),
+            CommandHandler(command="back", callback=api.get_back),
+            CommandHandler(command="category", callback=api.begin),
         ]
+    return handler_states
 
-commands = {
-    "start": [
-        CommandHandler(
-            command="yes",
-            callback=api.begin
-        ),
-        CommandHandler(
-            command="no",
-            callback=api.noBegin
-        )
-    ],
-    "stop": [
-        CommandHandler(
-            command="stop",
-            callback=api.stop
-        )
-    ],
-    "previous_next": [
-        CommandHandler(
-            command="back",
-            callback=api.get_previous_next
-            ),
-        CommandHandler(
-            command="next",
-            callback=api.get_previous_next
-            ),
-        CommandHandler(
-            command="category",
-            callback=api.begin
-            )
-        ]
-    }
-
+# Creating the ConversationHandler object
+# Entry point is /start
+# Gets the different states based on the RSS Feed structure
+# CommandHandler to handle during failures/error
 conversation_handler = ConversationHandler(
     entry_points=[
         CommandHandler(
@@ -75,7 +58,7 @@ conversation_handler = ConversationHandler(
             callback=api.start
         )
     ],
-    states={**states, **commands},
+    states = generate_conversation_handler_states(),
     fallbacks=[
         CommandHandler(
             command="stop",
@@ -85,5 +68,12 @@ conversation_handler = ConversationHandler(
     allow_reentry=True
 )
 
+token = os.getenv("TOKEN")
+bot = Bot(token=token)
+updater = Updater(token=token)
+dispatcher = updater.dispatcher
+
+# Add conversation handler to the dispatcher
 dispatcher.add_handler(conversation_handler)
+# Start polling
 updater.start_polling()

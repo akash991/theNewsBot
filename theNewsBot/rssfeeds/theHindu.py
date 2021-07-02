@@ -5,6 +5,10 @@ the_hindu_base_url = "https://www.thehindu.com/"
 the_hindu_rss_feeds_url = "https://www.thehindu.com/rssfeeds/"
 
 def collect_feeds():
+    """
+    Method to parse the html response
+    Collect all the feeds along with their name and url
+    """
     feeds = []
     rss_json = {}
     response = requests.get(url=the_hindu_rss_feeds_url)
@@ -13,7 +17,7 @@ def collect_feeds():
 
     for child in sublevel2.findAll("li"):
         url = child.a.get('href')
-        feed_pos = url.split(the_hindu_base_url)[1].split("/feeder/default.rss")[0]
+        feed_pos = url.split(the_hindu_base_url)[1].split("/feeder/default.rss")[0].lower()
         if not feed_pos.startswith("news"):
             feed_pos = "news/" + feed_pos
         if "national" in feed_pos and not feed_pos.endswith("national"):
@@ -33,6 +37,9 @@ def collect_feeds():
     return rss_json
 
 def fetch_items(url):
+    """
+    Fetch all the news articles using the url of a given feed
+    """
     data = []
     soup = BeautifulSoup(markup=requests.get(url).text, features="xml")
     for i in soup.find_all("item"):
@@ -44,37 +51,48 @@ def fetch_items(url):
         data.append(temp)
     return data
 
-def collect_articles(data):
-    for _, v in data.items():
-        if _ == "article":
-            data["article"] = fetch_items(data["url"])
-        if isinstance(v, dict):
-             data[_] = collect_articles(v)
-    return data
-
 def get_data(key):
+    """
+    Method to collect the data for a given key
+    Key here refers to the rssfeed name
+    
+    Returns a list of strings, if there are suboptions
+    or a list of dictionary, if it contains a url to the
+    news articles.
+    """
     data = None
     data = get_all_keys()
     data = data[key]
-    if len(data) == 1:
-        data = fetch_items(url=data[0])
+    if isinstance(data, str):
+        data = fetch_items(url=data)
     return data
 
 def get_all_keys():
+    """
+    Iterrate through the list of feeds and return
+    all options and their suboptions (if any) as a dictionary.
+    Used for creating the ConversationHandler for the bot.
+    """
     json_response = collect_feeds()
     dictionary = {}
     iterate_json(json_response, dictionary)
     return dictionary
 
 def iterate_json(data, dictionary):
+    """
+    Methof to travel through the json object
+    recursively and return either a list of 
+    suboptions or the url.
+    """
     if isinstance(data, dict):
         for k, v in data.items():
             if isinstance(v, dict):
-                elem = list(v.keys())
-                elem.remove('url')
-                if len(elem) == 0:
-                    elem.append(v["url"])
-                dictionary[k] = elem
+                if list(v.keys()) == ["url"]:
+                    dictionary[k] = v["url"]
+                else:
+                    temp = list(v.keys())
+                    temp.remove('url')
+                    dictionary[k] = temp
                 iterate_json(data[k], dictionary)
     else:
         return data
