@@ -1,4 +1,4 @@
 env/
 *.pyc
 theNewsBot/telebot/__pycache__
-theNewsBot/theHindu/__pycache__
+theNewsBot/reesfeeds/__pycache__
