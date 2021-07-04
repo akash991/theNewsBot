@@ -1,6 +1,6 @@
 import logging
 from messages import *
-from rssfeeds import theHindu
+from theNewsBot.rssfeeds import theHindu
 
 list_of_articles = []
 current_news_index = 0

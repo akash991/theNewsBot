@@ -1,7 +1,7 @@
 import os
 import api
 from telegram import Bot
-from rssfeeds import theHindu
+from theNewsBot.rssfeeds import theHindu
 from telegram.ext import Updater, CommandHandler, ConversationHandler
 
 def generate_conversation_handler_states():
