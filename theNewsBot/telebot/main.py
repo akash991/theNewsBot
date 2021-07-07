@@ -1,21 +1,14 @@
 import os
 import api
 from telegram import Bot
-from theNewsBot.rssfeeds import theHindu
+from theNewsBot.telebot import rssfeeds
 from telegram.ext import Updater, CommandHandler, ConversationHandler
 
-def generate_conversation_handler_states():
+def generate_conversation_handler_states_on_rssfeeds(handler_states):
     """
-    Function to create different states in the ConversationHandler
-
-    Parameters:
-        None
-    
-    Return:
-        dict: representing the handler states
+    Generate conv handler states based on the feeds from different sources
     """
-    handler_states = {}
-    rss_feeds = theHindu.get_all_keys()
+    rss_feeds = rssfeeds.get_all_keys()
     for k, v in rss_feeds.items():
         handler_states[k] = []
         if isinstance(v, list):
@@ -31,10 +24,24 @@ def generate_conversation_handler_states():
                 CommandHandler(command="back", callback=api.get_back)
             ]
         # Add category CommandHandler, this will help to navigate back to the list of categories
-        handler_states[k].append(CommandHandler(command="category",callback=api.begin))
+        handler_states[k].append(CommandHandler(command="category",callback=api.the_Hindu))
+        handler_states[k].append(CommandHandler(command="source",callback=api.select_sources))
+    return handler_states
+
+def generate_conversation_handler_states():
+    """
+    Function to create different states in the ConversationHandler
+
+    Parameters:
+        None
+    
+    Return:
+        dict: representing the handler states
+    """
+    handler_states = {}
 
     # CommandHandler to recognize the start of conversation
-    handler_states["start"] = [CommandHandler(command="yes", callback=api.begin)]
+    handler_states["start"] = [CommandHandler(command="yes", callback=api.select_sources)]
     # CommandHandler to stop the conversation
     handler_states["stop"] = [CommandHandler(command="stop", callback=api.stop)]
 
@@ -44,7 +51,13 @@ def generate_conversation_handler_states():
             CommandHandler(command="next", callback=api.get_next),
             CommandHandler(command="back", callback=api.get_back),
             CommandHandler(command="category", callback=api.begin),
+            CommandHandler(command="source", callback=api.select_sources)
         ]
+    handler_states["source"] = [
+        CommandHandler(command="theEconomicTimes", callback=api.the_ET),
+        CommandHandler(command="theHindu", callback=api.the_Hindu)
+    ]
+    handler_states = generate_conversation_handler_states_on_rssfeeds(handler_states)
     return handler_states
 
 # Creating the ConversationHandler object
