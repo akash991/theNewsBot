@@ -1,13 +1,35 @@
 import requests
 from bs4 import BeautifulSoup
 
-the_et_base_url = "https://economictimes.indiatimes.com"
-the_et_rss_feed_url = "https://economictimes.indiatimes.com/rss.cms"
+def collect_feeds_theHindu(rss_json):
+    """
+    Extract news feed from theHindu
+    """
+    the_hindu_rss_feeds_url = "https://www.thehindu.com/rssfeeds/"
 
-def collect_feeds():
+    rss_json["theHindu"] = {}
+    response = requests.get(url=the_hindu_rss_feeds_url)
+    soup = BeautifulSoup(response.text, features="lxml")
+    sublevel2 = soup.body.find('ul', attrs={'class':'sublevel2'})
+
+    keys = []
+    temp = rss_json["theHindu"]
+    for child in sublevel2.findAll():
+        if child.name == "ul":
+            rss_json["theHindu"][keys[-1]] = {}
+            temp = rss_json["theHindu"][keys[-1]]
+        elif child.name == "li":
+            keys.append(child.a.get('href').split("/")[-3].replace("-", "_").lower())
+            temp[keys[-1]] = child.a.get('href')
+
+def collect_feeds_theET(rss_json):
     """
+    Extract news feed from theEconomicTimes
     """
-    rss_json = {"theET": {"url":""}}
+    the_et_base_url = "https://economictimes.indiatimes.com"
+    the_et_rss_feed_url = "https://economictimes.indiatimes.com/rss.cms"
+    
+    rss_json["theET"] = {}
     response = requests.get(url=the_et_rss_feed_url)
     soup = BeautifulSoup(response.text, features="lxml")
     rssSubHead = soup.body.findAll('div', attrs={'class':'rssSubHead'})
@@ -18,8 +40,17 @@ def collect_feeds():
             for li in ul.findAll("li"):
                 url = "{}{}".format(the_et_base_url, li.a.get("href"))
                 feed = li.a.get("href").split("/")[2].replace("-", "_")
-                rss_json["theET"][feed] = {"url":url}
-            return rss_json
+                rss_json["theET"][feed] = url
+
+def collect_feeds():
+    """
+    Method to parse the html response
+    Collect all the feeds along with their name and url
+    """
+    rss_json = {}
+    collect_feeds_theHindu(rss_json)
+    collect_feeds_theET(rss_json)
+    return rss_json
 
 def fetch_items(url):
     """
@@ -72,12 +103,10 @@ def iterate_json(data, dictionary):
     if isinstance(data, dict):
         for k, v in data.items():
             if isinstance(v, dict):
-                if list(v.keys()) == ["url"]:
-                    dictionary[k] = v["url"]
-                else:
-                    temp = list(v.keys())
-                    temp.remove('url')
-                    dictionary[k] = temp
+                temp = list(v.keys())
+                dictionary[k] = temp
                 iterate_json(data[k], dictionary)
+            else:
+                dictionary[k] = v
     else:
         return data

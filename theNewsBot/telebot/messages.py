@@ -9,5 +9,5 @@ CATEGORY = "\n/category , select another category"
 BACK_CATEGORY_SOURCE = BACK + CATEGORY + SOURCE
 NEXT_CATEGORY_SOURCE = NEXT + CATEGORY + SOURCE
 NEXT_BACK_CATEGORY_SOURCE = NEXT + BACK + CATEGORY + SOURCE
-THATS_IT = "That's too much for now. Time to take a break\n"
+THATS_IT = "You've covered all the news in this category.\n"
 SELECT_SOURCE = "Please select from the following sources:\n\n/theEconomicTimes\n/theHindu\n"

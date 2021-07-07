@@ -1,5 +1,5 @@
 from messages import *
-from theNewsBot.rssfeeds import theHindu, theET
+from theNewsBot.telebot import rssfeeds
 
 list_of_articles = []
 current_news_index = 0
@@ -36,7 +36,7 @@ def the_Hindu(update, context):
     global news_source
     news_source = "theHindu"
     message = BEGIN
-    keys = theHindu.get_data(news_source)
+    keys = rssfeeds.get_data(news_source)
     for command in keys:
         message += "/{}\n".format(command)
     message += SOURCE
@@ -52,7 +52,7 @@ def the_ET(update, context):
     global news_source
     news_source = "theET"
     message = BEGIN
-    keys = theET.get_data(news_source)
+    keys = rssfeeds.get_data(news_source)
     for command in keys:
         message += "/{}\n".format(command)
     message += SOURCE
@@ -69,10 +69,7 @@ def begin(update, context):
     starting the conversation.
     """
     message = BEGIN
-    if news_source == "theET":
-        keys = theET.get_data(news_source)
-    elif news_source == "theHindu":
-        keys = theHindu.get_data(news_source)
+    keys = rssfeeds.get_data(news_source)
     for command in keys:
         message += "/{}\n".format(command)
     message += SOURCE
@@ -90,10 +87,7 @@ def get_data(update, context):
     global list_of_articles
     message = ""
     input_message = update.message.text
-    if news_source == "theET":
-        keys = theET.get_data(input_message.strip("/"))
-    elif news_source == "theHindu":
-        keys = theHindu.get_data(input_message.strip("/"))
+    keys = rssfeeds.get_data(input_message.strip("/"))
     if isinstance(keys[0], str):
         # If the return type is a list of strings, means that there are suboptions
         message = SUBCATEGORIES_BEGIN
