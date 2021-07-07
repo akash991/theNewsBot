@@ -24,7 +24,7 @@ def generate_conversation_handler_states_on_rssfeeds(handler_states):
                 CommandHandler(command="back", callback=api.get_back)
             ]
         # Add category CommandHandler, this will help to navigate back to the list of categories
-        handler_states[k].append(CommandHandler(command="category",callback=api.the_Hindu))
+        handler_states[k].append(CommandHandler(command="category",callback=api.begin))
         handler_states[k].append(CommandHandler(command="source",callback=api.select_sources))
     return handler_states
 

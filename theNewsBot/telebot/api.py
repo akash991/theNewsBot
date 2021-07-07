@@ -21,7 +21,7 @@ def select_sources(update, context):
     Gets trigerred when the user types in /yes after
     starting the conversation
     """
-    global news_source 
+    global news_source
     news_source = None
     message = SELECT_SOURCE
     context.bot.send_message(
@@ -67,6 +67,9 @@ def begin(update, context):
     Gets trigerred when user types in /yes after
     starting the conversation.
     """
+    global current_news_index, list_of_articles
+    current_news_index = 0
+    list_of_articles = []
     message = BEGIN
     keys = rssfeeds.get_data(news_source)
     for command in keys:
