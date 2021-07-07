@@ -1,15 +1,14 @@
-import logging
 from messages import *
-from theNewsBot.rssfeeds import theHindu
+from theNewsBot.rssfeeds import theHindu, theET
 
 list_of_articles = []
 current_news_index = 0
+news_source = None
 
 def start(update, context):
     """
     Gets trigerred when user types in /start
     """
-    logging.warning(str(update.message))
     message = START_MESSAGE
     context.bot.send_message(
         chat_id = update.effective_chat.id,
@@ -17,20 +16,71 @@ def start(update, context):
     )
     return "start"
 
+def select_sources(update, context):
+    """
+    Gets trigerred when the user types in /yes after
+    starting the conversation
+    """
+    global news_source 
+    news_source = None
+    message = SELECT_SOURCE
+    context.bot.send_message(
+        chat_id = update.effective_chat.id,
+        text = message
+    )
+    return "source"
+
+def the_Hindu(update, context):
+    """
+    """
+    global news_source
+    news_source = "theHindu"
+    message = BEGIN
+    keys = theHindu.get_data(news_source)
+    for command in keys:
+        message += "/{}\n".format(command)
+    message += SOURCE
+    context.bot.send_message(
+        chat_id = update.effective_chat.id,
+        text = message
+    )
+    return news_source
+
+def the_ET(update, context):
+    """
+    """
+    global news_source
+    news_source = "theET"
+    message = BEGIN
+    keys = theET.get_data(news_source)
+    for command in keys:
+        message += "/{}\n".format(command)
+    message += SOURCE
+    context.bot.send_message(
+        chat_id = update.effective_chat.id,
+        text = message
+    )
+    return news_source
+
+
 def begin(update, context):
     """
     Gets trigerred when user types in /yes after
     starting the conversation.
     """
     message = BEGIN
-    keys = theHindu.get_data("news")
+    if news_source == "theET":
+        keys = theET.get_data(news_source)
+    elif news_source == "theHindu":
+        keys = theHindu.get_data(news_source)
     for command in keys:
         message += "/{}\n".format(command)
+    message += SOURCE
     context.bot.send_message(
         chat_id = update.effective_chat.id,
         text = message
     )
-    return "news"
+    return news_source
 
 def get_data(update, context):
     """
@@ -40,7 +90,10 @@ def get_data(update, context):
     global list_of_articles
     message = ""
     input_message = update.message.text
-    keys = theHindu.get_data(input_message.strip("/"))
+    if news_source == "theET":
+        keys = theET.get_data(input_message.strip("/"))
+    elif news_source == "theHindu":
+        keys = theHindu.get_data(input_message.strip("/"))
     if isinstance(keys[0], str):
         # If the return type is a list of strings, means that there are suboptions
         message = SUBCATEGORIES_BEGIN
@@ -59,7 +112,7 @@ def get_data(update, context):
         for entry in keys[:10]:
             message += "[{}. {}]({})\n\n".format(count, entry["title"], entry["link"])
             count += 1
-        message += NEXT_CATEGORY
+        message += NEXT_CATEGORY_SOURCE
         context.bot.send_message(
             chat_id = update.effective_chat.id,
             text = message,
@@ -79,7 +132,7 @@ def get_next(update, context):
     
     if current_news_index >= len(list_of_articles):
         message += THATS_IT
-        message += BACK_CATEGORY
+        message += BACK_CATEGORY_SOURCE
     else:
         start_index = current_news_index
         stop_index = current_news_index + 10 
@@ -87,7 +140,7 @@ def get_next(update, context):
         for article in list_of_articles[start_index:stop_index]:
             message += "[{}. {}]({})\n\n".format(count, article['title'], article['link'])
             count += 1
-        message += NEXT_BACK_CATEGORY
+        message += NEXT_BACK_CATEGORY_SOURCE
 
     context.bot.send_message(
         chat_id = update.effective_chat.id,
@@ -120,9 +173,9 @@ def get_back(update, context):
         count += 1
 
     if current_news_index < 10:
-        message += NEXT_CATEGORY
+        message += NEXT_CATEGORY_SOURCE
     else:    
-        message += NEXT_BACK_CATEGORY
+        message += NEXT_BACK_CATEGORY_SOURCE
     
     context.bot.send_message(
         chat_id = update.effective_chat.id,

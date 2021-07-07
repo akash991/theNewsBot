@@ -1,40 +1,25 @@
 import requests
 from bs4 import BeautifulSoup
 
-the_hindu_base_url = "https://www.thehindu.com/"
-the_hindu_rss_feeds_url = "https://www.thehindu.com/rssfeeds/"
+the_et_base_url = "https://economictimes.indiatimes.com"
+the_et_rss_feed_url = "https://economictimes.indiatimes.com/rss.cms"
 
 def collect_feeds():
     """
-    Method to parse the html response
-    Collect all the feeds along with their name and url
     """
-    feeds = []
-    rss_json = {}
-    response = requests.get(url=the_hindu_rss_feeds_url)
+    rss_json = {"theET": {"url":""}}
+    response = requests.get(url=the_et_rss_feed_url)
     soup = BeautifulSoup(response.text, features="lxml")
-    sublevel2 = soup.body.find('ul', attrs={'class':'sublevel2'})
+    rssSubHead = soup.body.findAll('div', attrs={'class':'rssSubHead'})
 
-    for child in sublevel2.findAll("li"):
-        url = child.a.get('href')
-        feed_pos = url.split(the_hindu_base_url)[1].split("/feeder/default.rss")[0].lower().replace("news", "theHindu")
-        if not feed_pos.startswith("theHindu"):
-            feed_pos = "theHindu/" + feed_pos
-        if "national" in feed_pos and not feed_pos.endswith("national"):
-            feed_pos = feed_pos.replace("national", "states")
-        feeds.append([feed_pos, url])
-    
-    for entry in feeds:
-        feed, addr = entry[0], entry[1]
-        temp = rss_json
-        for i in feed.split("/"):
-            i = i.replace("-", "_")
-            if i in temp.keys():
-                pass
-            else:
-                temp[i] = {"url":addr}
-            temp = temp[i]
-    return rss_json
+    for rss in rssSubHead:
+        if rss.a.text.lower() == "news":
+            ul = rss.find_next_sibling('ul')
+            for li in ul.findAll("li"):
+                url = "{}{}".format(the_et_base_url, li.a.get("href"))
+                feed = li.a.get("href").split("/")[2].replace("-", "_")
+                rss_json["theET"][feed] = {"url":url}
+            return rss_json
 
 def fetch_items(url):
     """
