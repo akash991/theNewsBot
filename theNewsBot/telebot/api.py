@@ -30,38 +30,37 @@ def select_sources(update, context):
     )
     return "source"
 
+def _get_rss_feeds(update, context):
+    """
+    Prints the RSS feeds on telegram chat
+    based on the source selected by the user.
+    """
+    message = BEGIN
+    keys = rssfeeds.get_data(news_source)
+    for command in keys:
+        message += "/{}\n".format(command)
+    message += SOURCE
+    context.bot.send_message(
+        chat_id = update.effective_chat.id,
+        text = message
+    )
+    return news_source
+
 def the_Hindu(update, context):
     """
+    Gets all rss feeds specific to theHindu
     """
     global news_source
     news_source = "theHindu"
-    message = BEGIN
-    keys = rssfeeds.get_data(news_source)
-    for command in keys:
-        message += "/{}\n".format(command)
-    message += SOURCE
-    context.bot.send_message(
-        chat_id = update.effective_chat.id,
-        text = message
-    )
-    return news_source
+    return _get_rss_feeds(update, context)
 
 def the_ET(update, context):
     """
+    Gets all rss feeds specific to theET
     """
     global news_source
     news_source = "theET"
-    message = BEGIN
-    keys = rssfeeds.get_data(news_source)
-    for command in keys:
-        message += "/{}\n".format(command)
-    message += SOURCE
-    context.bot.send_message(
-        chat_id = update.effective_chat.id,
-        text = message
-    )
-    return news_source
-
+    return _get_rss_feeds(update, context)
 
 def begin(update, context):
     """
