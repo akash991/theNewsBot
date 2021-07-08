@@ -54,7 +54,7 @@ def generate_conversation_handler_states():
             CommandHandler(command="source", callback=api.select_sources)
         ]
     handler_states["source"] = []
-    sources = ["theHindu", "theEconomicTimes", "theTimesOfIndia", "theEconomist"]
+    sources = ["theHindu", "theEconomicTimes", "theTimesOfIndia"]
     for source in sources:
         handler_states["source"].append(CommandHandler(command=source, callback=api.get_rss_feeds))
     handler_states = generate_conversation_handler_states_on_rssfeeds(handler_states)

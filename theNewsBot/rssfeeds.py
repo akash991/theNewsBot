@@ -67,26 +67,6 @@ def collect_feeds_theTimesOfIndia(rss_json):
         else:
             continue
 
-def collect_feeds_theEconomist(rss_json):
-    """
-    Extract news feed from theEconomist
-    """
-    the_economist_rss_feeds_url = "https://www.economist.com/rss"
-
-    rss_json["theEconomist"] = {}
-    response = requests.get(the_economist_rss_feeds_url)
-    soup = BeautifulSoup(response.text, features="lxml")
-
-    data = soup.body.findAll("div", attrs={"class":"grid-3"})
-    for grid in data:
-        for tag in grid.findAll():
-            if tag.name == "h2":
-                heading = tag.text.replace(" ", "_").lower()
-                rss_json["theEconomist"][heading] = {}
-            elif tag.name == "li":
-                feed = tag.a.text.replace(" ", "_").replace("'s", "").lower()
-                rss_json["theEconomist"][heading][feed] = the_economist_rss_feeds_url.rstrip("/rss") + tag.a.get('href')
-
 def collect_feeds():
     """
     Method to parse the html response
@@ -96,7 +76,6 @@ def collect_feeds():
     collect_feeds_theHindu(rss_json)
     collect_feeds_theET(rss_json)
     collect_feeds_theTimesOfIndia(rss_json)
-    collect_feeds_theEconomist(rss_json)
     return rss_json
 
 def fetch_items(url):

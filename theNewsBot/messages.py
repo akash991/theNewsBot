@@ -10,4 +10,4 @@ BACK_CATEGORY_SOURCE = BACK + CATEGORY + SOURCE
 NEXT_CATEGORY_SOURCE = NEXT + CATEGORY + SOURCE
 NEXT_BACK_CATEGORY_SOURCE = NEXT + BACK + CATEGORY + SOURCE
 THATS_IT = "You've covered all the news in this category.\n"
-SELECT_SOURCE = "Please select from the following sources:\n\n/theHindu\n/theTimesOfIndia\n\n/theEconomicTimes\n/theEconomist\n"
+SELECT_SOURCE = "Please select from the following sources:\n\n/theHindu\n/theTimesOfIndia\n/theEconomicTimes\n"
