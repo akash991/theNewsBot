@@ -42,6 +42,51 @@ def collect_feeds_theET(rss_json):
                 feed = li.a.get("href").split("/")[2].replace("-", "_")
                 rss_json["theET"][feed] = url
 
+def collect_feeds_theTimesOfIndia(rss_json):
+    """
+    Extract news feed from theTimesOfIndia
+    """
+    the_times_of_india_rss_feeds_url = "https://timesofindia.indiatimes.com/rss.cms"
+
+    rss_json['theTimesOfIndia'] = {}
+    response = requests.get(url=the_times_of_india_rss_feeds_url)
+    soup = BeautifulSoup(response.text, features="lxml")
+    main_copy = soup.body.find("div", attrs={"id":"main-copy"})
+
+    for child in main_copy.findAll():
+        if child.name == "b":
+            if child.text == "» ":
+                continue
+            else:
+                key = child.text.replace(" ", "_").lower()
+                rss_json["theTimesOfIndia"][key] = {}
+        if child.name == "table":
+            for data in child.findAll("tr"):
+                name = data.td.a.text.replace(" ", "_").replace("&", "and").replace(",", "").lower()
+                rss_json["theTimesOfIndia"][key][name] = data.td.a.get('href')
+        else:
+            continue
+
+def collect_feeds_theEconomist(rss_json):
+    """
+    Extract news feed from theEconomist
+    """
+    the_economist_rss_feeds_url = "https://www.economist.com/rss"
+
+    rss_json["theEconomist"] = {}
+    response = requests.get(the_economist_rss_feeds_url)
+    soup = BeautifulSoup(response.text, features="lxml")
+
+    data = soup.body.findAll("div", attrs={"class":"grid-3"})
+    for grid in data:
+        for tag in grid.findAll():
+            if tag.name == "h2":
+                heading = tag.text.replace(" ", "_").lower()
+                rss_json["theEconomist"][heading] = {}
+            elif tag.name == "li":
+                feed = tag.a.text.replace(" ", "_").replace("'s", "").lower()
+                rss_json["theEconomist"][heading][feed] = the_economist_rss_feeds_url.rstrip("/rss") + tag.a.get('href')
+
 def collect_feeds():
     """
     Method to parse the html response
@@ -50,6 +95,8 @@ def collect_feeds():
     rss_json = {}
     collect_feeds_theHindu(rss_json)
     collect_feeds_theET(rss_json)
+    collect_feeds_theTimesOfIndia(rss_json)
+    collect_feeds_theEconomist(rss_json)
     return rss_json
 
 def fetch_items(url):
@@ -67,21 +114,25 @@ def fetch_items(url):
         data.append(temp)
     return data
 
-def get_data(key):
+def get_data(source, key=None):
     """
     Method to collect the data for a given key
-    Key here refers to the rssfeed name
+    and source. Here, key refers to the rssfeed name
     
     Returns a list of strings, if there are suboptions
     or a list of dictionary, if it contains a url to the
     news articles.
     """
-    data = None
-    data = get_all_keys()
-    data = data[key]
-    if isinstance(data, str):
-        data = fetch_items(url=data)
-    return data
+    json_response = collect_feeds()[source]
+    if key == None:
+        return list(json_response.keys())
+    else:
+        data = {}
+        iterate_json(json_response, data)
+        data = data[key]
+        if isinstance(data, str):
+            data = fetch_items(url=data)
+        return data
 
 def get_all_keys():
     """
@@ -96,7 +147,7 @@ def get_all_keys():
 
 def iterate_json(data, dictionary):
     """
-    Methof to travel through the json object
+    Method to traverse through the json object
     recursively and return either a list of 
     suboptions or the url.
     """

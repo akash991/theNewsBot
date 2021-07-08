@@ -1,5 +1,5 @@
 from messages import *
-from theNewsBot.telebot import rssfeeds
+import rssfeeds
 
 list_of_articles = []
 current_news_index = 0
@@ -30,11 +30,14 @@ def select_sources(update, context):
     )
     return "source"
 
-def _get_rss_feeds(update, context):
+def get_rss_feeds(update, context):
     """
     Prints the RSS feeds on telegram chat
     based on the source selected by the user.
     """
+    global news_source
+    input_message = update.message.text.lstrip("/")
+    news_source = input_message
     message = BEGIN
     keys = rssfeeds.get_data(news_source)
     for command in keys:
@@ -45,22 +48,6 @@ def _get_rss_feeds(update, context):
         text = message
     )
     return news_source
-
-def the_Hindu(update, context):
-    """
-    Gets all rss feeds specific to theHindu
-    """
-    global news_source
-    news_source = "theHindu"
-    return _get_rss_feeds(update, context)
-
-def the_ET(update, context):
-    """
-    Gets all rss feeds specific to theET
-    """
-    global news_source
-    news_source = "theET"
-    return _get_rss_feeds(update, context)
 
 def begin(update, context):
     """
@@ -89,7 +76,7 @@ def get_data(update, context):
     global list_of_articles
     message = ""
     input_message = update.message.text
-    keys = rssfeeds.get_data(input_message.strip("/"))
+    keys = rssfeeds.get_data(news_source, input_message.strip("/"))
     if isinstance(keys[0], str):
         # If the return type is a list of strings, means that there are suboptions
         message = SUBCATEGORIES_BEGIN
