@@ -1,2 +1,2 @@
-web: python theNewsBot/telebot/main.py
-worker: python theNewsBot/telebot/main.py
+web: python theNewsBot/main.py
+worker: python theNewsBot/main.py
