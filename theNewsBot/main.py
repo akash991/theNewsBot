@@ -1,7 +1,7 @@
 import os
 import api
+import rssfeeds
 from telegram import Bot
-from theNewsBot.telebot import rssfeeds
 from telegram.ext import Updater, CommandHandler, ConversationHandler
 
 def generate_conversation_handler_states_on_rssfeeds(handler_states):
@@ -53,10 +53,10 @@ def generate_conversation_handler_states():
             CommandHandler(command="category", callback=api.begin),
             CommandHandler(command="source", callback=api.select_sources)
         ]
-    handler_states["source"] = [
-        CommandHandler(command="theEconomicTimes", callback=api.the_ET),
-        CommandHandler(command="theHindu", callback=api.the_Hindu)
-    ]
+    handler_states["source"] = []
+    sources = ["theHindu", "theEconomicTimes", "theTimesOfIndia", "theEconomist"]
+    for source in sources:
+        handler_states["source"].append(CommandHandler(command=source, callback=api.get_rss_feeds))
     handler_states = generate_conversation_handler_states_on_rssfeeds(handler_states)
     return handler_states
 
