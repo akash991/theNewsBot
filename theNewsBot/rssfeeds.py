@@ -29,7 +29,7 @@ def collect_feeds_theET(rss_json):
     the_et_base_url = "https://economictimes.indiatimes.com"
     the_et_rss_feed_url = "https://economictimes.indiatimes.com/rss.cms"
     
-    rss_json["theET"] = {}
+    rss_json["theEconomicTimes"] = {}
     response = requests.get(url=the_et_rss_feed_url)
     soup = BeautifulSoup(response.text, features="lxml")
     rssSubHead = soup.body.findAll('div', attrs={'class':'rssSubHead'})
@@ -40,7 +40,7 @@ def collect_feeds_theET(rss_json):
             for li in ul.findAll("li"):
                 url = "{}{}".format(the_et_base_url, li.a.get("href"))
                 feed = li.a.get("href").split("/")[2].replace("-", "_")
-                rss_json["theET"][feed] = url
+                rss_json["theEconomicTimes"][feed] = url
 
 def collect_feeds_theTimesOfIndia(rss_json):
     """
